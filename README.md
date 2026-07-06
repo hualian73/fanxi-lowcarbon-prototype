@@ -12,7 +12,7 @@ npm run dev
 默认访问：
 
 ```text
-http://127.0.0.1:5173/dashboard
+https://fanxi-lowcarbon-prototype.vercel.app
 ```
 
 生产构建：
