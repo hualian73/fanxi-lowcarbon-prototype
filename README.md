@@ -75,15 +75,6 @@ src/
 - GSAP 动效包括页面入场、KPI/卡片错位浮现、流程图呼吸光效、核心指标浮动和 sparkline 微动效。
 - Canvas 工业背景包括光伏太阳弧、能流曲线、微粒网络和 PV/AIR/DO/PAC/CO2/AI 节点，突出数据流、能源流与工艺流的联动。
 
-## 版本保留
-
-本轮背景与动效增强前，已将源码快照保存到同级目录：
-
-```text
-D:\miniconda\fanxi_lowcarbon_decision_system\fanxi-lowcarbon-prototype_preserved_20260706
-```
-
-快照排除了 `node_modules` 和 `dist`，保留源码、配置与 lockfile。
 
 ## 说明
 
