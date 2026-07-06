@@ -1,0 +1,105 @@
+import { dashboardRecommendations } from './dashboard';
+import type { AnomalyEvent } from '../types/anomaly';
+
+export const anomalyEvents: AnomalyEvent[] = [
+  {
+    id: 'ANM-20260705-01',
+    title: '2# 生化池 DO 振荡扩大',
+    risk: 'high',
+    detectedAt: '2026-07-05 17:33',
+    location: '2# 生化池末端 / 鼓风机 B',
+    symptom: 'DO 在 1.52-2.48 mg/L 间快速振荡，伴随 NH3-N 预测上行。',
+    rootCauses: [
+      {
+        id: 'RC-01',
+        name: '进水氨氮负荷脉冲',
+        score: 0.42,
+        risk: 'high',
+        mechanism: '进水 NH3-N 与流量同步上升，氧需求短时超过当前风量响应能力。',
+        relatedTags: ['NH3-N', 'influent_flow', 'oxygen_demand'],
+      },
+      {
+        id: 'RC-02',
+        name: '鼓风机导叶响应滞后',
+        score: 0.31,
+        risk: 'medium',
+        mechanism: '导叶开度变化落后于 DO 误差 8-12 分钟，导致控制回路过冲。',
+        relatedTags: ['blower_vane', 'do_error', 'power'],
+      },
+      {
+        id: 'RC-03',
+        name: '回流流量计缺测造成估计偏差',
+        score: 0.18,
+        risk: 'medium',
+        mechanism: '3# 回流流量缺测，模型回退至泵频率估计，降低物料衡算精度。',
+        relatedTags: ['recycle_flow', 'fallback_model'],
+      },
+    ],
+    evidence: [
+      {
+        id: 'ANM-EV-01',
+        title: '残差检测',
+        source: 'residual_detector_v2',
+        time: '2026-07-05 17:33',
+        description: 'DO 预测残差连续 6 个采样点超过 2.5 sigma。',
+        confidence: 0.87,
+      },
+      {
+        id: 'ANM-EV-02',
+        title: 'SHAP 贡献度',
+        source: 'shap_explainer_v1',
+        time: '2026-07-05 17:34',
+        description: '进水 NH3-N、鼓风机功率、回流估计值为前三贡献变量。',
+        confidence: 0.82,
+      },
+      {
+        id: 'ANM-EV-03',
+        title: '数据质量事件',
+        source: 'data_quality_monitor',
+        time: '2026-07-05 17:31',
+        description: '3# 回流流量计缺测，已触发模型回退。',
+        confidence: 0.95,
+        state: 'missing',
+      },
+    ],
+    recommendations: [dashboardRecommendations[0]],
+  },
+  {
+    id: 'ANM-20260705-02',
+    title: '碳核算实时因子接口超时',
+    risk: 'medium',
+    detectedAt: '2026-07-05 17:28',
+    location: '碳核算服务 / 电网因子接口',
+    symptom: '实时排放因子连续 3 次拉取超时，系统回退至月均因子。',
+    rootCauses: [
+      {
+        id: 'RC-04',
+        name: '外部接口响应超时',
+        score: 0.68,
+        risk: 'medium',
+        mechanism: '第三方 API 超过 2 秒 SLA，触发熔断。',
+        relatedTags: ['grid_factor_api', 'timeout'],
+      },
+      {
+        id: 'RC-05',
+        name: '缓存 TTL 过短',
+        score: 0.21,
+        risk: 'low',
+        mechanism: '高频拉取增加失败概率，可延长缓存但会降低实时性。',
+        relatedTags: ['cache', 'ttl'],
+      },
+    ],
+    evidence: [
+      {
+        id: 'ANM-EV-04',
+        title: '工具调用失败',
+        source: 'carbon_factor_tool',
+        time: '2026-07-05 17:28',
+        description: 'HTTP timeout after 2000ms，已回退至 0.581 kgCO2e/kWh。',
+        confidence: 0.99,
+        state: 'failed',
+      },
+    ],
+    recommendations: [],
+  },
+];
